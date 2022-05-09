@@ -4,9 +4,20 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class User(AbstractUser):
-    is_moderator = models.BooleanField(
-        _('moderator status'),
-        default=False,
-        help_text=_("Designates whether the user can use moderator's "
-                    "permissions.")
+    ADMIN = 'admin'
+    MODERATOR = 'moderator'
+    USER = 'user'
+    USER_CHOICES = [
+        (ADMIN, _('admin')),
+        (MODERATOR, _('moderator')),
+        (USER, _('user')),
+    ]
+    role = models.CharField(
+        max_length=9,
+        choices=USER_CHOICES,
+        default=USER
+    )
+    bio = models.TextField(
+        _('biography'),
+        blank=True,
     )
