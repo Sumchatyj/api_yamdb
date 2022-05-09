@@ -56,7 +56,6 @@ class Review(models.Model):
         related_name='reviews'
     )
     score = models.PositiveIntegerField(
-        default=5,
         validators=[MinValueValidator(1), MaxValueValidator(10)],
     )
     pub_date = models.DateTimeField(
@@ -72,7 +71,7 @@ class Comment(models.Model):
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
-        related_name='reviews'
+        related_name='comments'
     )
     text = models.TextField()
     author = models.ForeignKey(
