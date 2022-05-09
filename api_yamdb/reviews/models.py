@@ -1,5 +1,3 @@
-from datetime import date
-
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
@@ -22,7 +20,6 @@ class Gerne(models.Model):
         return self.name
 
 
-# возможно стоит переопределить year
 class Title(models.Model):
     name = models.CharField(max_length=200)
     year = models.IntegerField()
@@ -62,6 +59,13 @@ class Review(models.Model):
         'Дата добавления',
         auto_now_add=True,
     )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                name="unique_review", fields=["author", "title"]
+            )
+        ]
 
     def __str__(self):
         return self.text[:15]
