@@ -12,7 +12,7 @@ class Category(models.Model):
         return self.name
 
 
-class Gerne(models.Model):
+class Genre(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
 
@@ -30,7 +30,7 @@ class Title(models.Model):
         null=True
     )
     gerne = models.ForeignKey(
-        Gerne,
+        Genre,
         on_delete=models.SET_NULL,
         related_name="titles",
         null=True
@@ -40,8 +40,21 @@ class Title(models.Model):
         return self.name
 
 
+class GenreTitle(models.Model):
+    title_id = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE,
+        related_name='genre'
+    )
+    genre_id = models.ForeignKey(
+        Genre,
+        on_delete=models.CASCADE,
+        related_name='title'
+    )
+
+
 class Review(models.Model):
-    title = models.ForeignKey(
+    title_id = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
         related_name='reviews'
@@ -63,7 +76,7 @@ class Review(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                name="unique_review", fields=["author", "title"]
+                name="unique_review", fields=["author", "title_id"]
             )
         ]
 
@@ -72,7 +85,7 @@ class Review(models.Model):
 
 
 class Comment(models.Model):
-    review = models.ForeignKey(
+    review_id = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
         related_name='comments'
