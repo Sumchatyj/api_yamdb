@@ -52,6 +52,13 @@ class GenreTitle(models.Model):
         related_name='title'
     )
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                name="unique_connection", fields=["genre_id", "title_id"]
+            )
+        ]
+
 
 class Review(models.Model):
     title_id = models.ForeignKey(
