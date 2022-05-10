@@ -6,7 +6,7 @@ from reviews.models import Category, Title, Review, Comment, Genre, GenreTitle
 
 def fill_user_data(path):
     try:
-        with open(path) as f:
+        with open(path, encoding="utf8") as f:
             reader = csv.reader(f)
             next(reader, None)
             for row in reader:
@@ -23,7 +23,7 @@ def fill_user_data(path):
         print('no users data')
 
 
-def fill_category_data(path):
+def fill_category_data(path, encoding="utf8"):
     try:
         with open(path) as f:
             reader = csv.reader(f)
@@ -40,7 +40,7 @@ def fill_category_data(path):
 
 def fill_title_data(path):
     try:
-        with open(path) as f:
+        with open(path, encoding="utf8") as f:
             reader = csv.reader(f)
             next(reader, None)
             for row in reader:
@@ -56,7 +56,7 @@ def fill_title_data(path):
 
 def fill_review_data(path):
     try:
-        with open(path) as f:
+        with open(path, encoding="utf8") as f:
             reader = csv.reader(f)
             next(reader, None)
             for row in reader:
@@ -72,7 +72,7 @@ def fill_review_data(path):
         print('no review data')
 
 
-def fill_comments_data(path):
+def fill_comments_data(path, encoding="utf8"):
     try:
         with open(path) as f:
             reader = csv.reader(f)
@@ -89,7 +89,7 @@ def fill_comments_data(path):
         print('no comments data')
 
 
-def fill_genre_data(path):
+def fill_genre_data(path, encoding="utf8"):
     try:
         with open(path) as f:
             reader = csv.reader(f)
@@ -104,7 +104,7 @@ def fill_genre_data(path):
         print('no genre data')
 
 
-def fill_genre_title_data(path):
+def fill_genre_title_data(path, encoding="utf8"):
     try:
         with open(path) as f:
             reader = csv.reader(f)
