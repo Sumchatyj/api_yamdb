@@ -7,8 +7,7 @@ from .permissions import IsAdminOrSuperuser
 from .serializers import SignUpSerializer, TokenSerializer, UserSerializer, UserForMeSerializer, CommentSerializer, ReviewSerializer
 from rest_framework_simplejwt.views import TokenViewBase
 from django.shortcuts import get_object_or_404
-
-from reviews.models import Review, Title
+from reviews.models import Title, Review
 
 
 class ReviewsViewSet(viewsets.ModelViewSet):
