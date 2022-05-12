@@ -1,14 +1,11 @@
 from rest_framework import serializers
-<<<<<<< HEAD
 from users.models import User
 from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
 from django.contrib.auth.tokens import default_token_generator
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
-=======
 from rest_framework.validators import UniqueTogetherValidator
->>>>>>> master
 
 from reviews.models import Comment, Review
 
@@ -47,7 +44,6 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('id', 'text', 'author', 'pub_date')
         model = Comment
-<<<<<<< HEAD
 
 
 class SignUpSerializer(serializers.ModelSerializer):
@@ -73,7 +69,7 @@ class SignUpSerializer(serializers.ModelSerializer):
 
 class TokenSerializer(TokenObtainPairSerializer):
     username_field = User.USERNAME_FIELD
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields[self.username_field] = serializers.CharField()
@@ -112,5 +108,3 @@ class UserForMeSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('username', 'email', 'first_name', 'last_name', 'bio')
         model = User
-=======
->>>>>>> master
