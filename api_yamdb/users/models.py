@@ -21,3 +21,7 @@ class User(AbstractUser):
         _('biography'),
         blank=True,
     )
+    confirmation_code = models.CharField(
+        max_length=128,
+        blank=True,
+    )
