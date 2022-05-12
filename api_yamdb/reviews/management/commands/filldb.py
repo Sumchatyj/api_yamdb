@@ -1,7 +1,9 @@
-from django.core.management.base import BaseCommand
 import csv
+
+from django.core.management.base import BaseCommand
+
+from reviews.models import Category, Comment, Genre, GenreTitle, Review, Title
 from users.models import User
-from reviews.models import Category, Title, Review, Comment, Genre, GenreTitle
 
 
 def fill_user_data(path):
@@ -23,9 +25,9 @@ def fill_user_data(path):
         print('no users data')
 
 
-def fill_category_data(path, encoding="utf8"):
+def fill_category_data(path):
     try:
-        with open(path) as f:
+        with open(path, encoding="utf8") as f:
             reader = csv.reader(f)
             next(reader, None)
             for row in reader:
@@ -62,7 +64,7 @@ def fill_review_data(path):
             for row in reader:
                 Review.objects.get_or_create(
                     id=row[0],
-                    title_id=Title.objects.get(pk=row[1]),
+                    title=Title.objects.get(pk=row[1]),
                     text=row[2],
                     author=User.objects.get(pk=row[3]),
                     score=row[4],
@@ -72,15 +74,15 @@ def fill_review_data(path):
         print('no review data')
 
 
-def fill_comments_data(path, encoding="utf8"):
+def fill_comments_data(path):
     try:
-        with open(path) as f:
+        with open(path, encoding="utf8") as f:
             reader = csv.reader(f)
             next(reader, None)
             for row in reader:
                 Comment.objects.get_or_create(
                     id=row[0],
-                    review_id=Review.objects.get(pk=row[1]),
+                    review=Review.objects.get(pk=row[1]),
                     text=row[2],
                     author=User.objects.get(pk=row[3]),
                     pub_date=row[4],
@@ -89,9 +91,9 @@ def fill_comments_data(path, encoding="utf8"):
         print('no comments data')
 
 
-def fill_genre_data(path, encoding="utf8"):
+def fill_genre_data(path):
     try:
-        with open(path) as f:
+        with open(path, encoding="utf8") as f:
             reader = csv.reader(f)
             next(reader, None)
             for row in reader:
@@ -104,16 +106,16 @@ def fill_genre_data(path, encoding="utf8"):
         print('no genre data')
 
 
-def fill_genre_title_data(path, encoding="utf8"):
+def fill_genre_title_data(path):
     try:
-        with open(path) as f:
+        with open(path, encoding="utf8") as f:
             reader = csv.reader(f)
             next(reader, None)
             for row in reader:
                 GenreTitle.objects.get_or_create(
                     id=row[0],
-                    title_id=Title.objects.get(pk=row[1]),
-                    genre_id=Genre.objects.get(pk=row[2])
+                    title=Title.objects.get(pk=row[1]),
+                    genre=Genre.objects.get(pk=row[2])
                 )
     except IOError:
         print('no genre_title data')
