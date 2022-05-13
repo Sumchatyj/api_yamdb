@@ -48,7 +48,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         print(data)
-        if self.context['request'].user == data['title']:
+        if self.request.user == data['title']:
             raise serializers.ValidationError(
                 'Можно оставить только один отзыв!')
         return data
