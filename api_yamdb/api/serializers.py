@@ -1,23 +1,42 @@
-from rest_framework import serializers
-from users.models import User
-from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
 from django.contrib.auth.tokens import default_token_generator
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.shortcuts import get_object_or_404
+from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from reviews.models import Comment, Review
+
+from reviews.models import Comment, Review, Title
+from users.models import User
+
+
+class TitleSerializer(serializers.ModelSerializer):
+    raiting = serializers.SerializerMethodField()
+
+    class Meta:
+        fields = ('id', 'name', 'year', 'category', 'raiting')
+        model = Title
+
+    def get_raiting(self, obj):
+        reviews = obj.reviews.all()
+        count = reviews.count()
+        score_sum = 0
+        for i in reviews:
+            score_sum += i.score
+        raiting = round(score_sum/count)
+        return raiting
 
 
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         slug_field='username',
         read_only=True,
-        # default=serializers.CurrentUserDefault()
+        default=serializers.CurrentUserDefault()
     )
+    title = serializers.HiddenField(default=Review.title)
 
     class Meta:
-        fields = ('id', 'text', 'author', 'score', 'pub_date')
+        fields = ('id', 'text', 'author', 'score', 'pub_date', 'title')
         model = Review
         unique_together = ('author', 'title')
         validators = [
@@ -28,7 +47,8 @@ class ReviewSerializer(serializers.ModelSerializer):
         ]
 
     def validate(self, data):
-        if self.context['request'].author == data['title']:
+        print(data)
+        if self.context['request'].user == data['title']:
             raise serializers.ValidationError(
                 'Можно оставить только один отзыв!')
         return data
@@ -94,7 +114,9 @@ class UserSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = ('username', 'email', 'first_name', 'last_name', 'bio', 'role')
+        fields = (
+            'username', 'email', 'first_name', 'last_name', 'bio', 'role'
+        )
         model = User
 
 

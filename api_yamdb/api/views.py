@@ -1,13 +1,22 @@
-from rest_framework.generics import CreateAPIView
-from rest_framework import viewsets, permissions, filters, serializers
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from users.models import User
-from .permissions import IsAdminOrSuperuser
-from .serializers import SignUpSerializer, TokenSerializer, UserSerializer, UserForMeSerializer, CommentSerializer, ReviewSerializer
-from rest_framework_simplejwt.views import TokenViewBase
 from django.shortcuts import get_object_or_404
-from reviews.models import Title, Review
+from rest_framework import filters, permissions, serializers, viewsets
+from rest_framework.decorators import action
+from rest_framework.generics import CreateAPIView
+from rest_framework.response import Response
+from rest_framework_simplejwt.views import TokenViewBase
+
+from reviews.models import Review, Title
+from users.models import User
+
+from .permissions import IsAdminOrSuperuser
+from .serializers import (CommentSerializer, ReviewSerializer,
+                          SignUpSerializer, TitleSerializer, TokenSerializer,
+                          UserForMeSerializer, UserSerializer)
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
 
 
 class ReviewsViewSet(viewsets.ModelViewSet):
@@ -55,14 +64,21 @@ class UserViewset(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ("username",)
 
-    @action(detail=False, methods=['get', 'patch'], permission_classes=(permissions.IsAuthenticated,))
+    @action(
+        detail=False,
+        methods=['get', 'patch'],
+        permission_classes=(permissions.IsAuthenticated,)
+    )
     def me(self, request):
         user = self.request.user
         if request.method == "GET":
             serializer = UserForMeSerializer(user)
             return Response(serializer.data)
         if request.method == "PATCH":
-            serializer = UserForMeSerializer(user, data=request.data, partial=True)
+            serializer = UserForMeSerializer(
+                user, data=request.data,
+                partial=True
+            )
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data)
