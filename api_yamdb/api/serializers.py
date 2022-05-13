@@ -23,7 +23,7 @@ class TitleSerializer(serializers.ModelSerializer):
         score_sum = 0
         for i in reviews:
             score_sum += i.score
-        raiting = round(score_sum/count)
+        raiting = round(score_sum / count)
         return raiting
 
 
@@ -38,7 +38,6 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('id', 'text', 'author', 'score', 'pub_date', 'title')
         model = Review
-        unique_together = ('author', 'title')
         validators = [
             UniqueTogetherValidator(
                 queryset=Review.objects.all(),
@@ -47,10 +46,10 @@ class ReviewSerializer(serializers.ModelSerializer):
         ]
 
     def validate(self, data):
-        print(data)
-        if self.context['request'].user == data['title']:
-            raise serializers.ValidationError(
-                'Можно оставить только один отзыв!')
+        # print(Review.objects.filter(title=data['title']))
+        # if Review.objects.filter(author=self.context['request'].user).exists():
+        #     raise serializers.ValidationError(
+        #         'Можно оставить только один отзыв!')
         return data
 
 

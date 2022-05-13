@@ -8,7 +8,7 @@ from rest_framework_simplejwt.views import TokenViewBase
 from reviews.models import Review, Title
 from users.models import User
 
-from .permissions import IsAdminOrSuperuser
+from .permissions import IsAdminOrSuperuser, IsAuthorOrStaffOrReadOnly
 from .serializers import (CommentSerializer, ReviewSerializer,
                           SignUpSerializer, TitleSerializer, TokenSerializer,
                           UserForMeSerializer, UserSerializer)
@@ -21,6 +21,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class ReviewsViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
+    permission_classes = (IsAuthorOrStaffOrReadOnly,)
 
     def get_queryset(self):
         title_id = self.kwargs.get("title_id")
@@ -34,6 +35,7 @@ class ReviewsViewSet(viewsets.ModelViewSet):
 
 class CommentsViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
+    permission_classes = (IsAuthorOrStaffOrReadOnly,)
 
     def get_queryset(self):
         review_id = self.kwargs.get("review_id")
