@@ -4,7 +4,6 @@ from rest_framework.routers import DefaultRouter
 from .views import (CommentsViewSet, ReviewsViewSet, SignUpView, TitleViewSet,
                     TokenView, UserViewset)
 
-
 router_v1 = DefaultRouter()
 router_v1.register(r"users", UserViewset, "Users")
 router_v1.register('titles', TitleViewSet, basename='title')
