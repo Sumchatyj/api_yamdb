@@ -2,7 +2,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
+from rest_framework.validators import UniqueValidator
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
@@ -23,7 +23,7 @@ class TitleSerializer(serializers.ModelSerializer):
         score_sum = 0
         for i in reviews:
             score_sum += i.score
-        raiting = round(score_sum/count)
+        raiting = round(score_sum / count)
         return raiting
 
 
@@ -33,25 +33,10 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only=True,
         default=serializers.CurrentUserDefault()
     )
-    title = serializers.HiddenField(default=Review.title)
 
     class Meta:
-        fields = ('id', 'text', 'author', 'score', 'pub_date', 'title')
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
         model = Review
-        unique_together = ('author', 'title')
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Review.objects.all(),
-                fields=('author', 'title')
-            )
-        ]
-
-    def validate(self, data):
-        print(data)
-        if self.request.user == data['title']:
-            raise serializers.ValidationError(
-                'Можно оставить только один отзыв!')
-        return data
 
 
 class CommentSerializer(serializers.ModelSerializer):
