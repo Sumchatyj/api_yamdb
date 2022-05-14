@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenViewBase
 from reviews.models import Review, Title
 from users.models import User
+from rest_framework import status
 
 from .permissions import IsAdminOrSuperuser, IsAuthorOrStaffOrReadOnly
 from .serializers import (CommentSerializer, ReviewSerializer,
@@ -54,6 +55,15 @@ class SignUpView(CreateAPIView):
     permission_classes = (permissions.AllowAny,)
     queryset = User.objects.all()
     serializer_class = SignUpSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            serializer.data, status=status.HTTP_200_OK, headers=headers
+        )
 
 
 class TokenView(TokenViewBase):
