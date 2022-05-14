@@ -4,7 +4,6 @@ from rest_framework.decorators import action
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenViewBase
-
 from reviews.models import Review, Title
 from users.models import User
 
@@ -26,10 +25,13 @@ class ReviewsViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         title_id = self.kwargs.get("title_id")
         title = get_object_or_404(Title, pk=title_id)
-        return title.reviews.all()
+        return title.reviews.order_by('-pub_date')
 
     def perform_create(self, serializer):
         title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
+        if title.reviews.filter(author=self.request.user).exists():
+            raise serializers.ValidationError(
+                'Можно оставить только один отзыв!')
         serializer.save(author=self.request.user, title=title)
 
 
@@ -39,11 +41,12 @@ class CommentsViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         review_id = self.kwargs.get("review_id")
-        review = get_object_or_404(Review, id=review_id)
-        return review.comments.all()
+        review = get_object_or_404(Review, pk=review_id)
+        return review.comments.order_by('-pub_date')
 
     def perform_create(self, serializer):
-        review = get_object_or_404(Review)
+        review_id = self.kwargs.get("review_id")
+        review = get_object_or_404(Review, pk=review_id)
         serializer.save(author=self.request.user, review=review)
 
 
