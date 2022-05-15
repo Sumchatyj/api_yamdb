@@ -7,3 +7,7 @@ class CategoriesPagination(PageNumberPagination):
 
 class GenresPagination(PageNumberPagination):
     page_size = 2
+
+
+class TitlesPagination(PageNumberPagination):
+    page_size = 2
