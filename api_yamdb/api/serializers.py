@@ -32,10 +32,10 @@ class GenreSerializer(serializers.ModelSerializer):
 class TitleSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
     genre = GenreSerializer(read_only=True, many=True)
-    raiting = serializers.SerializerMethodField(required=False)
+    rating = serializers.SerializerMethodField(required=False)
 
     class Meta:
-        fields = '__all__'
+        fields = ('id', 'name', 'year', 'rating', 'description', 'genre', 'category')
         model = Title
 
     def validate(self, data):
@@ -64,14 +64,16 @@ class TitleSerializer(serializers.ModelSerializer):
         title.genre.set(genres)
         return title
 
-    def get_raiting(self, obj):
+    def get_rating(self, obj):
         reviews = obj.reviews.all()
         count = reviews.count()
+        if count == 0:
+            return count
         score_sum = 0
         for i in reviews:
             score_sum += i.score
-        raiting = round(score_sum / count)
-        return raiting
+        rating = round(score_sum / count)
+        return rating
 
 
 class ReviewSerializer(serializers.ModelSerializer):
