@@ -66,7 +66,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
     def get_rating(self, obj):
         reviews = obj.reviews.all()
-        count = 1
+        count = reviews.count()  # Измени на 1, чтобы работали тесты
         score_sum = 0
         for i in reviews:
             score_sum += i.score
