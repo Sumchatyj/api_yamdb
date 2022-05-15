@@ -6,14 +6,15 @@ from rest_framework.decorators import action
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenViewBase
-from rest_framework.pagination import PageNumberPagination
 
 from reviews.models import Category, Genre, Review, Title
+from .pagination import CategoriesPagination, GenresPagination
 from .permissions import (IsAdminOrSuperuser, IsAuthorOrStaffOrReadOnly,
                           IsAdminOrSuperuserOrReadOnly)
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer,
-                          SignUpSerializer, TitleSerializer, TokenSerializer,
+                          SignUpSerializer, TitleSerializer,
+                          TitleCreateSerializer, TokenSerializer,
                           UserForMeSerializer, UserSerializer)
 from users.models import User
 
@@ -23,12 +24,26 @@ class CrLstDstViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
     pass
 
 
+class CrLstUpdDstViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
+                         mixins.DestroyModelMixin, mixins.UpdateModelMixin,
+                         viewsets.GenericViewSet):
+    pass
+
+
+class MultiSerializerViewSetMixin(object):
+    def get_serializer_class(self):
+        try:
+            return self.serializer_action_classes[self.action]
+        except (KeyError, AttributeError):
+            return super(MultiSerializerViewSetMixin, self).get_serializer_class()
+
+
 class CategoryViewSet(CrLstDstViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrSuperuserOrReadOnly, ]
     filter_backends = (filters.SearchFilter,)
-    pagination_class = PageNumberPagination
+    pagination_class = CategoriesPagination
     search_fields = ('name',)
     lookup_field = 'slug'
 
@@ -38,14 +53,26 @@ class GenreViewSet(CrLstDstViewSet):
     serializer_class = GenreSerializer
     permission_classes = [IsAdminOrSuperuserOrReadOnly, ]
     filter_backends = (filters.SearchFilter,)
-    pagination_class = PageNumberPagination
+    pagination_class = GenresPagination
     search_fields = ('name',)
     lookup_field = 'slug'
 
 
-class TitleViewSet(viewsets.ModelViewSet):
+class TitleViewSet(MultiSerializerViewSetMixin, CrLstUpdDstViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
+    permission_classes = [IsAdminOrSuperuserOrReadOnly, ]
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
+    pagination_class = GenresPagination
+    filterset_fields = ('category', 'genre', 'name', 'year')
+    serializer_action_classes = {
+        'list': TitleSerializer,
+        'create': TitleCreateSerializer,
+        'retrieve': TitleSerializer,
+        'partial_update': TitleCreateSerializer,
+        'destroy': TitleSerializer,
+    }
+    lookup_field = 'slug'
 
 
 class ReviewsViewSet(viewsets.ModelViewSet):

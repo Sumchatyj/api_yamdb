@@ -9,6 +9,12 @@ from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
 
 
+def user_validation(data):
+    if data.get("username") == 'me':
+        raise ValidationError('Недопустимый юзернейм')
+    return data
+
+
 class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -23,13 +29,25 @@ class GenreSerializer(serializers.ModelSerializer):
         model = Genre
 
 
-def user_validation(data):
-    if data.get("username") == 'me':
-        raise ValidationError('Недопустимый юзернейм')
-    return data
+class TitleCreateSerializer(serializers.ModelSerializer):
+    category = serializers.SlugRelatedField(
+        queryset=Category.objects.all(),
+        slug_field='slug'
+    )
+    genre = serializers.SlugRelatedField(
+        queryset=Genre.objects.all(),
+        slug_field='slug',
+        many=True
+    )
+
+    class Meta:
+        fields = '__all__'
+        model = Title
 
 
 class TitleSerializer(serializers.ModelSerializer):
+    category = CategorySerializer(read_only=True)
+    genre = GenreSerializer(read_only=True, many=True)
     raiting = serializers.SerializerMethodField()
 
     class Meta:
