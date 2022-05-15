@@ -8,6 +8,12 @@ from reviews.models import Comment, Review, Title
 from users.models import User
 
 
+def user_validation(data):
+    if data.get("username") == 'me':
+        raise ValidationError('Недопустимый юзернейм')
+    return data
+
+
 class TitleSerializer(serializers.ModelSerializer):
     raiting = serializers.SerializerMethodField()
 
@@ -68,6 +74,9 @@ class SignUpSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+    def validate(self, data):
+        return user_validation(data)
+
 
 class TokenSerializer(TokenObtainPairSerializer):
     username_field = User.USERNAME_FIELD
@@ -87,7 +96,7 @@ class TokenSerializer(TokenObtainPairSerializer):
             }
             return data
         else:
-            raise ValidationError('wrong confirmation_code')
+            raise ValidationError('неверный confirmation_code')
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -102,6 +111,9 @@ class UserSerializer(serializers.ModelSerializer):
         )
         model = User
 
+    def validate(self, data):
+        return user_validation(data)
+
 
 class UserForMeSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
@@ -115,3 +127,6 @@ class UserForMeSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('role',)
         model = User
+
+    def validate(self, data):
+        return user_validation(data)
