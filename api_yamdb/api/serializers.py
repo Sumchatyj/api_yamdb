@@ -1,11 +1,32 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+from rest_framework.relations import SlugRelatedField
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from reviews.models import Comment, Review, Title
+from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
+
+
+class CategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = '__all__'
+        model = Category
+
+
+class GenreSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = '__all__'
+        model = Genre
+
+
+def user_validation(data):
+    if data.get("username") == 'me':
+        raise ValidationError('Недопустимый юзернейм')
+    return data
 
 
 class TitleSerializer(serializers.ModelSerializer):
@@ -68,6 +89,9 @@ class SignUpSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+    def validate(self, data):
+        return user_validation(data)
+
 
 class TokenSerializer(TokenObtainPairSerializer):
     username_field = User.USERNAME_FIELD
@@ -87,7 +111,7 @@ class TokenSerializer(TokenObtainPairSerializer):
             }
             return data
         else:
-            raise ValidationError('wrong confirmation_code')
+            raise ValidationError('неверный confirmation_code')
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -102,6 +126,9 @@ class UserSerializer(serializers.ModelSerializer):
         )
         model = User
 
+    def validate(self, data):
+        return user_validation(data)
+
 
 class UserForMeSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
@@ -115,3 +142,6 @@ class UserForMeSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('role',)
         model = User
+
+    def validate(self, data):
+        return user_validation(data)

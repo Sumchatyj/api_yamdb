@@ -1,16 +1,46 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, permissions, serializers, viewsets
+from rest_framework import filters, mixins, permissions, serializers, viewsets
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenViewBase
-from reviews.models import Review, Title
-from users.models import User
+from rest_framework.pagination import PageNumberPagination
 
-from .permissions import IsAdminOrSuperuser, IsAuthorOrStaffOrReadOnly
-from .serializers import (CommentSerializer, ReviewSerializer,
+from reviews.models import Category, Genre, Review, Title
+from .permissions import (IsAdminOrSuperuser, IsAuthorOrStaffOrReadOnly,
+                          IsAdminOrSuperuserOrReadOnly)
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, ReviewSerializer,
                           SignUpSerializer, TitleSerializer, TokenSerializer,
                           UserForMeSerializer, UserSerializer)
+from users.models import User
+
+
+class CrLstDstViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
+                      mixins.DestroyModelMixin, viewsets.GenericViewSet):
+    pass
+
+
+class CategoryViewSet(CrLstDstViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [IsAdminOrSuperuserOrReadOnly, ]
+    filter_backends = (filters.SearchFilter,)
+    pagination_class = PageNumberPagination
+    search_fields = ('name',)
+    lookup_field = 'slug'
+
+
+class GenreViewSet(CrLstDstViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    permission_classes = [IsAdminOrSuperuserOrReadOnly, ]
+    filter_backends = (filters.SearchFilter,)
+    pagination_class = PageNumberPagination
+    search_fields = ('name',)
+    lookup_field = 'slug'
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -54,6 +84,15 @@ class SignUpView(CreateAPIView):
     permission_classes = (permissions.AllowAny,)
     queryset = User.objects.all()
     serializer_class = SignUpSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            serializer.data, status=status.HTTP_200_OK, headers=headers
+        )
 
 
 class TokenView(TokenViewBase):

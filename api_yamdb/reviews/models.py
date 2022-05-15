@@ -7,6 +7,14 @@ class Category(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'slug'],
+                name='unique_category'
+            )
+        ]
+
     def __str__(self):
         return self.name
 
@@ -14,6 +22,14 @@ class Category(models.Model):
 class Genre(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'slug'],
+                name='unique_genre'
+            )
+        ]
 
     def __str__(self):
         return self.name
