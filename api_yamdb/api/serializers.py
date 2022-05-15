@@ -18,14 +18,14 @@ def user_validation(data):
 class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = '__all__'
+        fields = ('name', 'slug')
         model = Category
 
 
 class GenreSerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = '__all__'
+        fields = ('name', 'slug')
         model = Genre
 
 
@@ -35,7 +35,11 @@ class TitleSerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField(required=False)
 
     class Meta:
+<<<<<<< HEAD
         fields = ('id', 'name', 'year', 'rating', 'description', 'genre', 'category')
+=======
+        fields = ('id', 'name', 'year', 'category', 'genre', 'rating')
+>>>>>>> master
         model = Title
 
     def validate(self, data):
@@ -66,9 +70,13 @@ class TitleSerializer(serializers.ModelSerializer):
 
     def get_rating(self, obj):
         reviews = obj.reviews.all()
+<<<<<<< HEAD
         count = reviews.count()
         if count == 0:
             return count
+=======
+        count = 1
+>>>>>>> master
         score_sum = 0
         for i in reviews:
             score_sum += i.score

@@ -8,7 +8,8 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenViewBase
 
 from reviews.models import Category, Genre, Review, Title
-from .pagination import CategoriesPagination, GenresPagination
+from .pagination import (CategoriesPagination, GenresPagination,
+                         TitlesPagination)
 from .permissions import (IsAdminOrSuperuser, IsAuthorOrStaffOrReadOnly,
                           IsAdminOrSuperuserOrReadOnly)
 from .serializers import (CategorySerializer, CommentSerializer,
@@ -49,7 +50,11 @@ class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     permission_classes = [IsAdminOrSuperuserOrReadOnly, ]
     filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
+<<<<<<< HEAD
     pagination_class = CategoriesPagination
+=======
+    pagination_class = TitlesPagination
+>>>>>>> master
     filterset_fields = ('category', 'genre', 'name', 'year')
 
 
