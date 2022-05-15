@@ -7,6 +7,14 @@ class Category(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'slug'],
+                name='unique_category'
+            )
+        ]
+
     def __str__(self):
         return self.name
 
@@ -14,6 +22,14 @@ class Category(models.Model):
 class Genre(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'slug'],
+                name='unique_genre'
+            )
+        ]
 
     def __str__(self):
         return self.name
@@ -28,11 +44,9 @@ class Title(models.Model):
         related_name="titles",
         null=True
     )
-    gerne = models.ForeignKey(
+    genre = models.ManyToManyField(
         Genre,
-        on_delete=models.SET_NULL,
-        related_name="titles",
-        null=True
+        related_name="titles"
     )
 
     def __str__(self):
@@ -43,7 +57,7 @@ class GenreTitle(models.Model):
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
-        related_name='genre'
+        related_name='genres'
     )
     genre = models.ForeignKey(
         Genre,

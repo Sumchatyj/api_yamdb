@@ -1,10 +1,11 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+from rest_framework.relations import SlugRelatedField
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from reviews.models import Comment, Review, Title
+from reviews.models import Category, Comment, Genre, GenreTitle, Review, Title
 from users.models import User
 
 
@@ -14,12 +15,54 @@ def user_validation(data):
     return data
 
 
-class TitleSerializer(serializers.ModelSerializer):
-    raiting = serializers.SerializerMethodField()
+class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = ('id', 'name', 'year', 'category', 'raiting')
+        fields = '__all__'
+        model = Category
+
+
+class GenreSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = '__all__'
+        model = Genre
+
+
+class TitleSerializer(serializers.ModelSerializer):
+    category = CategorySerializer(read_only=True)
+    genre = GenreSerializer(read_only=True, many=True)
+    raiting = serializers.SerializerMethodField(required=False)
+
+    class Meta:
+        fields = '__all__'
         model = Title
+
+    def validate(self, data):
+        slug = self.context['request'].data.get('category')
+        if slug is not None:
+            category = Category.objects.get(slug=slug)
+            if category:
+                data['category'] = category
+            else:
+                raise serializers.ValidationError('Такой категории нет!')
+        slugs = self.context['request'].data.getlist('genre')
+        if len(slugs) > 0:
+            genres = []
+            for slug in slugs:
+                genre = Genre.objects.filter(slug=slug)
+                if genre:
+                    genres.append(genre[0])
+                else:
+                    raise serializers.ValidationError('Такого жанра нет!')
+            data['genre'] = genres
+        return data
+
+    def create(self, validated_data):
+        genres = validated_data.pop('genre')
+        title = Title.objects.create(**validated_data)
+        title.genre.set(genres)
+        return title
 
     def get_raiting(self, obj):
         reviews = obj.reviews.all()

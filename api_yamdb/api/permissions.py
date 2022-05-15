@@ -21,3 +21,13 @@ class IsAdminOrSuperuser(permissions.BasePermission):
         return (
             request.user.role == 'admin' or request.user.is_superuser is True
         )
+
+
+class IsAdminOrSuperuserOrReadOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.user.is_anonymous:
+            return request.method in permissions.SAFE_METHODS
+        return (
+            request.user.role == 'admin' or request.user.is_superuser is True
+        )
+
