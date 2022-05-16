@@ -35,7 +35,7 @@ class TitleSerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField(required=False)
 
     class Meta:
-        fields = ('id', 'name', 'year', 'category', 'genre', 'rating')
+        fields = ('id', 'name', 'year', 'category', 'genre', 'rating', 'description')
         model = Title
 
     def validate(self, data):
@@ -66,7 +66,9 @@ class TitleSerializer(serializers.ModelSerializer):
 
     def get_rating(self, obj):
         reviews = obj.reviews.all()
-        count = 1
+        count = reviews.count()
+        if count == 0:
+            return None
         score_sum = 0
         for i in reviews:
             score_sum += i.score

@@ -16,7 +16,7 @@ class Category(models.Model):
         ]
 
     def __str__(self):
-        return self.name
+        return self.slug
 
 
 class Genre(models.Model):
@@ -32,12 +32,13 @@ class Genre(models.Model):
         ]
 
     def __str__(self):
-        return self.name
+        return self.slug
 
 
 class Title(models.Model):
     name = models.CharField(max_length=200)
     year = models.IntegerField()
+    description = models.TextField(blank=True)
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
