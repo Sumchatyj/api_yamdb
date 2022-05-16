@@ -7,60 +7,72 @@ from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenViewBase
 
+from .filters import FilterTitle
 from reviews.models import Category, Genre, Review, Title
-from .pagination import (CategoriesPagination, GenresPagination,
-                         TitlesPagination)
-from .permissions import (IsAdminOrSuperuser, IsAuthorOrStaffOrReadOnly,
-                          IsAdminOrSuperuserOrReadOnly)
-from .serializers import (CategorySerializer, CommentSerializer,
-                          GenreSerializer, ReviewSerializer,
-                          SignUpSerializer, TitleSerializer,
-                          TokenSerializer, UserForMeSerializer,
-                          UserSerializer)
+from .pagination import (
+    CategoriesPagination,
+    GenresPagination,
+    TitlesPagination,
+)
+from .permissions import (
+    IsAdminOrSuperuser,
+    IsAuthorOrStaffOrReadOnly,
+    IsAdminOrSuperuserOrReadOnly,
+)
+from .serializers import (
+    CategorySerializer,
+    CommentSerializer,
+    GenreSerializer,
+    ReviewSerializer,
+    SignUpSerializer,
+    TitleSerializer,
+    TokenSerializer,
+    UserForMeSerializer,
+    UserSerializer,
+)
 from users.models import User
 
 
-class CrLstDstViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
-                      mixins.DestroyModelMixin, viewsets.GenericViewSet):
+class CrLstDstViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
     pass
 
 
-class FilterTitle(filter.FilterSet):
-    category = filter.CharFilter(field_name='category__slug')
-    genre = filter.CharFilter(field_name='genre__slug')
-    name = filter.CharFilter(field_name='name', lookup_expr='contains')
-    year = filter.NumberFilter(field_name='year')
-
-    class Meta:
-        model = Title
-        fields = ['category', 'genre', 'name', 'year']
-
-
 class CategoryViewSet(CrLstDstViewSet):
-    queryset = Category.objects.all().order_by('id')
+    queryset = Category.objects.all().order_by("id")
     serializer_class = CategorySerializer
-    lookup_field = 'slug'
-    permission_classes = [IsAdminOrSuperuserOrReadOnly, ]
+    lookup_field = "slug"
+    permission_classes = [
+        IsAdminOrSuperuserOrReadOnly,
+    ]
     filter_backends = (filters.SearchFilter,)
     pagination_class = CategoriesPagination
-    search_fields = ('name',)
+    search_fields = ("name",)
 
 
 class GenreViewSet(CrLstDstViewSet):
-    queryset = Genre.objects.all().order_by('id')
+    queryset = Genre.objects.all().order_by("id")
     serializer_class = GenreSerializer
-    lookup_field = 'slug'
-    permission_classes = [IsAdminOrSuperuserOrReadOnly, ]
+    lookup_field = "slug"
+    permission_classes = [
+        IsAdminOrSuperuserOrReadOnly,
+    ]
     filter_backends = (filters.SearchFilter,)
     pagination_class = GenresPagination
-    search_fields = ('name',)
+    search_fields = ("name",)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all().order_by('id')
+    queryset = Title.objects.all().order_by("id")
     serializer_class = TitleSerializer
-    permission_classes = [IsAdminOrSuperuserOrReadOnly, ]
-    filter_backends = (filter.DjangoFilterBackend, )
+    permission_classes = [
+        IsAdminOrSuperuserOrReadOnly,
+    ]
+    filter_backends = (filter.DjangoFilterBackend,)
     pagination_class = TitlesPagination
     filterset_class = FilterTitle
 
@@ -72,13 +84,14 @@ class ReviewsViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         title_id = self.kwargs.get("title_id")
         title = get_object_or_404(Title, pk=title_id)
-        return title.reviews.order_by('-pub_date')
+        return title.reviews.order_by("-pub_date")
 
     def perform_create(self, serializer):
         title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
         if title.reviews.filter(author=self.request.user).exists():
             raise serializers.ValidationError(
-                'Можно оставить только один отзыв!')
+                "Можно оставить только один отзыв!"
+            )
         serializer.save(author=self.request.user, title=title)
 
 
@@ -89,7 +102,7 @@ class CommentsViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         review_id = self.kwargs.get("review_id")
         review = get_object_or_404(Review, pk=review_id)
-        return review.comments.order_by('-pub_date')
+        return review.comments.order_by("-pub_date")
 
     def perform_create(self, serializer):
         review_id = self.kwargs.get("review_id")
@@ -118,17 +131,17 @@ class TokenView(TokenViewBase):
 
 
 class UserViewset(viewsets.ModelViewSet):
-    queryset = User.objects.all().order_by('id')
+    queryset = User.objects.all().order_by("id")
     serializer_class = UserSerializer
     permission_classes = (IsAdminOrSuperuser,)
-    lookup_field = 'username'
+    lookup_field = "username"
     filter_backends = (filters.SearchFilter,)
     search_fields = ("username",)
 
     @action(
         detail=False,
-        methods=['get', 'patch'],
-        permission_classes=(permissions.IsAuthenticated,)
+        methods=["get", "patch"],
+        permission_classes=(permissions.IsAuthenticated,),
     )
     def me(self, request):
         user = self.request.user
@@ -137,8 +150,7 @@ class UserViewset(viewsets.ModelViewSet):
             return Response(serializer.data)
         if request.method == "PATCH":
             serializer = UserForMeSerializer(
-                user, data=request.data,
-                partial=True
+                user, data=request.data, partial=True
             )
             if serializer.is_valid():
                 serializer.save()

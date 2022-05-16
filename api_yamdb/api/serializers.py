@@ -9,22 +9,20 @@ from users.models import User
 
 
 def user_validation(data):
-    if data.get("username") == 'me':
-        raise ValidationError('Недопустимый юзернейм')
+    if data.get("username") == "me":
+        raise ValidationError("Недопустимый юзернейм")
     return data
 
 
 class CategorySerializer(serializers.ModelSerializer):
-
     class Meta:
-        fields = ('name', 'slug')
+        fields = ("name", "slug")
         model = Category
 
 
 class GenreSerializer(serializers.ModelSerializer):
-
     class Meta:
-        fields = ('name', 'slug')
+        fields = ("name", "slug")
         model = Genre
 
 
@@ -35,25 +33,25 @@ class TitleSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = (
-            'id',
-            'name',
-            'year',
-            'category',
-            'genre',
-            'rating',
-            'description'
+            "id",
+            "name",
+            "year",
+            "category",
+            "genre",
+            "rating",
+            "description",
         )
         model = Title
 
     def validate(self, data):
-        slug = self.context['request'].data.get('category')
+        slug = self.context["request"].data.get("category")
         if slug is not None:
             category = Category.objects.get(slug=slug)
             if category:
-                data['category'] = category
+                data["category"] = category
             else:
-                raise serializers.ValidationError('Такой категории нет!')
-        slugs = self.context['request'].data.getlist('genre')
+                raise serializers.ValidationError("Такой категории нет!")
+        slugs = self.context["request"].data.getlist("genre")
         if len(slugs) > 0:
             genres = []
             for slug in slugs:
@@ -61,12 +59,12 @@ class TitleSerializer(serializers.ModelSerializer):
                 if genre:
                     genres.append(genre[0])
                 else:
-                    raise serializers.ValidationError('Такого жанра нет!')
-            data['genre'] = genres
+                    raise serializers.ValidationError("Такого жанра нет!")
+            data["genre"] = genres
         return data
 
     def create(self, validated_data):
-        genres = validated_data.pop('genre')
+        genres = validated_data.pop("genre")
         title = Title.objects.create(**validated_data)
         title.genre.set(genres)
         return title
@@ -85,43 +83,42 @@ class TitleSerializer(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
-        slug_field='username',
+        slug_field="username",
         read_only=True,
-        default=serializers.CurrentUserDefault()
+        default=serializers.CurrentUserDefault(),
     )
 
     class Meta:
-        fields = ('id', 'text', 'author', 'score', 'pub_date')
+        fields = ("id", "text", "author", "score", "pub_date")
         model = Review
 
 
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
-        slug_field='username',
-        read_only=True
+        slug_field="username", read_only=True
     )
 
     class Meta:
-        fields = ('id', 'text', 'author', 'pub_date')
+        fields = ("id", "text", "author", "pub_date")
         model = Comment
 
 
 class SignUpSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
         required=True,
-        validators=[UniqueValidator(queryset=User.objects.all())]
+        validators=[UniqueValidator(queryset=User.objects.all())],
     )
 
     class Meta:
-        fields = ('username', 'email')
+        fields = ("username", "email")
         model = User
 
     def create(self, validated_data):
         user = User.objects.create(**validated_data)
         user.confirmation_code = default_token_generator.make_token(user)
         user.email_user(
-            'Welcome!',
-            f'Your confirmation code: {user.confirmation_code}',
+            "Welcome!",
+            f"Your confirmation code: {user.confirmation_code}",
         )
         user.save()
         return user
@@ -140,26 +137,29 @@ class TokenSerializer(TokenObtainPairSerializer):
         self.fields.pop("password")
 
     def validate(self, attrs):
-        user = get_object_or_404(User, username=attrs['username'])
-        if user.confirmation_code == attrs['confirmation_code']:
+        user = get_object_or_404(User, username=attrs["username"])
+        if user.confirmation_code == attrs["confirmation_code"]:
             refresh = self.get_token(user)
-            data = {
-                "access": str(refresh.access_token)
-            }
+            data = {"access": str(refresh.access_token)}
             return data
         else:
-            raise ValidationError('неверный confirmation_code')
+            raise ValidationError("неверный confirmation_code")
 
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
         required=True,
-        validators=[UniqueValidator(queryset=User.objects.all())]
+        validators=[UniqueValidator(queryset=User.objects.all())],
     )
 
     class Meta:
         fields = (
-            'username', 'email', 'first_name', 'last_name', 'bio', 'role'
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "bio",
+            "role",
         )
         model = User
 
@@ -170,14 +170,19 @@ class UserSerializer(serializers.ModelSerializer):
 class UserForMeSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
         required=True,
-        validators=[UniqueValidator(queryset=User.objects.all())]
+        validators=[UniqueValidator(queryset=User.objects.all())],
     )
 
     class Meta:
         fields = (
-            'username', 'email', 'first_name', 'last_name', 'bio', 'role'
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "bio",
+            "role",
         )
-        read_only_fields = ('role',)
+        read_only_fields = ("role",)
         model = User
 
     def validate(self, data):

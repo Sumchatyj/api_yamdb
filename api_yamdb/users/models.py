@@ -4,21 +4,17 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class User(AbstractUser):
-    ADMIN = 'admin'
-    MODERATOR = 'moderator'
-    USER = 'user'
+    ADMIN = "admin"
+    MODERATOR = "moderator"
+    USER = "user"
     USER_CHOICES = [
-        (ADMIN, _('admin')),
-        (MODERATOR, _('moderator')),
-        (USER, _('user')),
+        (ADMIN, _("admin")),
+        (MODERATOR, _("moderator")),
+        (USER, _("user")),
     ]
-    role = models.CharField(
-        max_length=9,
-        choices=USER_CHOICES,
-        default=USER
-    )
+    role = models.CharField(max_length=9, choices=USER_CHOICES, default=USER)
     bio = models.TextField(
-        _('biography'),
+        _("biography"),
         blank=True,
     )
     confirmation_code = models.CharField(

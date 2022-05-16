@@ -10,8 +10,7 @@ class Category(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['name', 'slug'],
-                name='unique_category'
+                fields=["name", "slug"], name="unique_category"
             )
         ]
 
@@ -26,8 +25,7 @@ class Genre(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['name', 'slug'],
-                name='unique_genre'
+                fields=["name", "slug"], name="unique_genre"
             )
         ]
 
@@ -40,57 +38,27 @@ class Title(models.Model):
     year = models.IntegerField()
     description = models.TextField(blank=True)
     category = models.ForeignKey(
-        Category,
-        on_delete=models.SET_NULL,
-        related_name="titles",
-        null=True
+        Category, on_delete=models.SET_NULL, related_name="titles", null=True
     )
-    genre = models.ManyToManyField(
-        Genre,
-        related_name="titles"
-    )
+    genre = models.ManyToManyField(Genre, related_name="titles")
 
     def __str__(self):
         return self.name
 
 
-class GenreTitle(models.Model):
-    title = models.ForeignKey(
-        Title,
-        on_delete=models.CASCADE,
-        related_name='genres'
-    )
-    genre = models.ForeignKey(
-        Genre,
-        on_delete=models.CASCADE,
-        related_name='title'
-    )
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                name="unique_connection", fields=["genre_id", "title_id"]
-            )
-        ]
-
-
 class Review(models.Model):
     title = models.ForeignKey(
-        Title,
-        on_delete=models.CASCADE,
-        related_name='reviews'
+        Title, on_delete=models.CASCADE, related_name="reviews"
     )
     text = models.TextField()
     author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='reviews'
+        User, on_delete=models.CASCADE, related_name="reviews"
     )
     score = models.PositiveIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(10)],
     )
     pub_date = models.DateTimeField(
-        'Дата добавления',
+        "Дата добавления",
         auto_now_add=True,
     )
 
@@ -107,18 +75,14 @@ class Review(models.Model):
 
 class Comment(models.Model):
     review = models.ForeignKey(
-        Review,
-        on_delete=models.CASCADE,
-        related_name='comments'
+        Review, on_delete=models.CASCADE, related_name="comments"
     )
     text = models.TextField()
     author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='comments'
+        User, on_delete=models.CASCADE, related_name="comments"
     )
     pub_date = models.DateTimeField(
-        'Дата добавления',
+        "Дата добавления",
         auto_now_add=True,
     )
 

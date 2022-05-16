@@ -21,7 +21,7 @@ def fill_user_data(path):
                     last_name=row[6],
                 )
     except IOError:
-        print('no users data')
+        print("no users data")
 
 
 def fill_category_data(path):
@@ -36,7 +36,7 @@ def fill_category_data(path):
                     slug=row[2],
                 )
     except IOError:
-        print('no category data')
+        print("no category data")
 
 
 def fill_title_data(path):
@@ -52,7 +52,7 @@ def fill_title_data(path):
                     category=Category.objects.get(pk=row[3]),
                 )
     except IOError:
-        print('no title data')
+        print("no title data")
 
 
 def fill_review_data(path):
@@ -70,7 +70,7 @@ def fill_review_data(path):
                     pub_date=row[5],
                 )
     except IOError:
-        print('no review data')
+        print("no review data")
 
 
 def fill_comments_data(path):
@@ -87,7 +87,7 @@ def fill_comments_data(path):
                     pub_date=row[4],
                 )
     except IOError:
-        print('no comments data')
+        print("no comments data")
 
 
 def fill_genre_data(path):
@@ -102,7 +102,7 @@ def fill_genre_data(path):
                     slug=row[2],
                 )
     except IOError:
-        print('no genre data')
+        print("no genre data")
 
 
 def fill_genre_title_data(path):
@@ -114,19 +114,19 @@ def fill_genre_title_data(path):
                 GenreTitle.objects.get_or_create(
                     id=row[0],
                     title=Title.objects.get(pk=row[1]),
-                    genre=Genre.objects.get(pk=row[2])
+                    genre=Genre.objects.get(pk=row[2]),
                 )
     except IOError:
-        print('no genre_title data')
+        print("no genre_title data")
 
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        fill_user_data('static/data/users.csv')
-        fill_category_data('static/data/category.csv')
-        fill_title_data('static/data/titles.csv')
-        fill_review_data('static/data/review.csv')
-        fill_comments_data('static/data/comments.csv')
-        fill_genre_data('static/data/genre.csv')
-        fill_genre_title_data('static/data/genre_title.csv')
-        print('fixtures added to DB')
+        fill_user_data("static/data/users.csv")
+        fill_category_data("static/data/category.csv")
+        fill_title_data("static/data/titles.csv")
+        fill_review_data("static/data/review.csv")
+        fill_comments_data("static/data/comments.csv")
+        fill_genre_data("static/data/genre.csv")
+        fill_genre_title_data("static/data/genre_title.csv")
+        print("fixtures added to DB")

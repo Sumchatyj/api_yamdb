@@ -6,25 +6,31 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('reviews', '0002_auto_20220512_1544'),
+        ("reviews", "0002_auto_20220512_1544"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='title',
-            name='gerne',
+            model_name="title",
+            name="gerne",
         ),
         migrations.AddField(
-            model_name='title',
-            name='gerne',
-            field=models.ManyToManyField(related_name='titles', to='reviews.Genre'),
+            model_name="title",
+            name="gerne",
+            field=models.ManyToManyField(
+                related_name="titles", to="reviews.Genre"
+            ),
         ),
         migrations.AddConstraint(
-            model_name='category',
-            constraint=models.UniqueConstraint(fields=('name', 'slug'), name='unique_category'),
+            model_name="category",
+            constraint=models.UniqueConstraint(
+                fields=("name", "slug"), name="unique_category"
+            ),
         ),
         migrations.AddConstraint(
-            model_name='genre',
-            constraint=models.UniqueConstraint(fields=('name', 'slug'), name='unique_genre'),
+            model_name="genre",
+            constraint=models.UniqueConstraint(
+                fields=("name", "slug"), name="unique_genre"
+            ),
         ),
     ]
