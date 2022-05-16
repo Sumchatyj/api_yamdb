@@ -26,7 +26,7 @@ class CrLstDstViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
 
 
 class CategoryViewSet(CrLstDstViewSet):
-    queryset = Category.objects.all()
+    queryset = Category.objects.all().order_by('id')
     serializer_class = CategorySerializer
     lookup_field = 'slug'
     permission_classes = [IsAdminOrSuperuserOrReadOnly, ]
@@ -36,7 +36,7 @@ class CategoryViewSet(CrLstDstViewSet):
 
 
 class GenreViewSet(CrLstDstViewSet):
-    queryset = Genre.objects.all()
+    queryset = Genre.objects.all().order_by('id')
     serializer_class = GenreSerializer
     lookup_field = 'slug'
     permission_classes = [IsAdminOrSuperuserOrReadOnly, ]
@@ -46,7 +46,7 @@ class GenreViewSet(CrLstDstViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
+    queryset = Title.objects.all().order_by('id')
     serializer_class = TitleSerializer
     permission_classes = [IsAdminOrSuperuserOrReadOnly, ]
     filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
@@ -107,7 +107,7 @@ class TokenView(TokenViewBase):
 
 
 class UserViewset(viewsets.ModelViewSet):
-    queryset = User.objects.all()
+    queryset = User.objects.all().order_by('id')
     serializer_class = UserSerializer
     permission_classes = (IsAdminOrSuperuser,)
     lookup_field = 'username'
