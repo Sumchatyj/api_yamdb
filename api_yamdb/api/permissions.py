@@ -35,6 +35,7 @@ class IsAdminOrSuperuserOrReadOnly(permissions.BasePermission):
         if request.user.is_anonymous:
             return request.method in permissions.SAFE_METHODS
         return (
-            request.user.role == 'admin' or request.user.is_superuser is True
+            request.method in permissions.SAFE_METHODS
+            or request.user.role == 'admin' or request.user.is_superuser is True
         )
 
