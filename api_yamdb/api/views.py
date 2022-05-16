@@ -1,4 +1,4 @@
-from django_filters.rest_framework import DjangoFilterBackend
+from django_filters import rest_framework as filter
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, mixins, permissions, serializers, viewsets
 from rest_framework import status
@@ -25,6 +25,17 @@ class CrLstDstViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
     pass
 
 
+class FilterTitle(filter.FilterSet):
+    category = filter.CharFilter(field_name='category__slug')
+    genre = filter.CharFilter(field_name='genre__slug')
+    name = filter.CharFilter(field_name='name', lookup_expr='contains')
+    year = filter.NumberFilter(field_name='year')
+
+    class Meta:
+        model = Title
+        fields = ['category', 'genre', 'name', 'year']
+
+
 class CategoryViewSet(CrLstDstViewSet):
     queryset = Category.objects.all().order_by('id')
     serializer_class = CategorySerializer
@@ -49,9 +60,9 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all().order_by('id')
     serializer_class = TitleSerializer
     permission_classes = [IsAdminOrSuperuserOrReadOnly, ]
-    filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
+    filter_backends = (filter.DjangoFilterBackend, )
     pagination_class = TitlesPagination
-    filterset_fields = ('category', 'genre', 'name', 'year')
+    filterset_class = FilterTitle
 
 
 class ReviewsViewSet(viewsets.ModelViewSet):
