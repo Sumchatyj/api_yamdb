@@ -25,7 +25,7 @@ class TitleSerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField(required=False)
 
     class Meta:
-        fields = '__all__'
+        fields = "__all__"
         model = Title
 
     def validate(self, data):

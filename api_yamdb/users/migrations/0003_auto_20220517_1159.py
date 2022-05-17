@@ -6,18 +6,26 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0002_auto_20220517_1008'),
+        ("users", "0002_auto_20220517_1008"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='user',
-            name='is_admin',
-            field=models.BooleanField(default=False, help_text='Designates whether the user have moderator admin', verbose_name='staff status'),
+            model_name="user",
+            name="is_admin",
+            field=models.BooleanField(
+                default=False,
+                help_text="Designates whether the user have moderator admin",
+                verbose_name="staff status",
+            ),
         ),
         migrations.AddField(
-            model_name='user',
-            name='is_moderator',
-            field=models.BooleanField(default=False, help_text='Designates whether the user have moderator status', verbose_name='moderator status'),
+            model_name="user",
+            name="is_moderator",
+            field=models.BooleanField(
+                default=False,
+                help_text="Designates whether the user have moderator status",
+                verbose_name="moderator status",
+            ),
         ),
     ]

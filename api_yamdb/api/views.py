@@ -111,7 +111,9 @@ class SignUpViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-        user = User.objects.get(username=serializer.initial_data.get('username'))
+        user = User.objects.get(
+            username=serializer.initial_data.get("username")
+        )
         user.confirmation_code = default_token_generator.make_token(user)
         user.email_user(
             "Welcome!",
