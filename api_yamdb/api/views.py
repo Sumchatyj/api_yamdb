@@ -1,9 +1,9 @@
+from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filter
 from rest_framework import (filters, mixins, permissions, serializers, status,
                             viewsets)
 from rest_framework.decorators import action
-from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenViewBase
 
@@ -11,8 +11,6 @@ from reviews.models import Category, Genre, Review, Title
 from users.models import User
 
 from .filters import FilterTitle
-from .pagination import (CategoriesPagination, GenresPagination,
-                         TitlesPagination)
 from .permissions import (IsAdminOrSuperuser, IsAdminOrSuperuserOrReadOnly,
                           IsAuthorOrStaffOrReadOnly)
 from .serializers import (CategorySerializer, CommentSerializer,
@@ -38,7 +36,6 @@ class CategoryViewSet(CrLstDstViewSet):
         IsAdminOrSuperuserOrReadOnly,
     ]
     filter_backends = (filters.SearchFilter,)
-    pagination_class = CategoriesPagination
     search_fields = ("name",)
 
 
@@ -50,7 +47,6 @@ class GenreViewSet(CrLstDstViewSet):
         IsAdminOrSuperuserOrReadOnly,
     ]
     filter_backends = (filters.SearchFilter,)
-    pagination_class = GenresPagination
     search_fields = ("name",)
 
 
@@ -61,7 +57,6 @@ class TitleViewSet(viewsets.ModelViewSet):
         IsAdminOrSuperuserOrReadOnly,
     ]
     filter_backends = (filter.DjangoFilterBackend,)
-    pagination_class = TitlesPagination
     filterset_class = FilterTitle
 
 
@@ -98,7 +93,7 @@ class CommentsViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user, review=review)
 
 
-class SignUpView(CreateAPIView):
+class SignUpViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     permission_classes = (permissions.AllowAny,)
     queryset = User.objects.all()
     serializer_class = SignUpSerializer
@@ -107,6 +102,14 @@ class SignUpView(CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
+        user = User.objects.get(
+            username=serializer.initial_data.get("username")
+        )
+        user.confirmation_code = default_token_generator.make_token(user)
+        user.email_user(
+            "Welcome!",
+            f"Your confirmation code: {user.confirmation_code}",
+        )
         headers = self.get_success_headers(serializer.data)
         return Response(
             serializer.data, status=status.HTTP_200_OK, headers=headers
