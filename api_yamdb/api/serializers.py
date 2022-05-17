@@ -1,4 +1,3 @@
-from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -6,12 +5,6 @@ from rest_framework.validators import UniqueValidator
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
-
-
-def user_validation(data):
-    if data.get("username") == "me":
-        raise ValidationError("Недопустимый юзернейм")
-    return data
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -32,15 +25,7 @@ class TitleSerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField(required=False)
 
     class Meta:
-        fields = (
-            "id",
-            "name",
-            "year",
-            "category",
-            "genre",
-            "rating",
-            "description",
-        )
+        fields = "__all__"
         model = Title
 
     def validate(self, data):
@@ -113,19 +98,6 @@ class SignUpSerializer(serializers.ModelSerializer):
         fields = ("username", "email")
         model = User
 
-    def create(self, validated_data):
-        user = User.objects.create(**validated_data)
-        user.confirmation_code = default_token_generator.make_token(user)
-        user.email_user(
-            "Welcome!",
-            f"Your confirmation code: {user.confirmation_code}",
-        )
-        user.save()
-        return user
-
-    def validate(self, data):
-        return user_validation(data)
-
 
 class TokenSerializer(TokenObtainPairSerializer):
     username_field = User.USERNAME_FIELD
@@ -163,9 +135,6 @@ class UserSerializer(serializers.ModelSerializer):
         )
         model = User
 
-    def validate(self, data):
-        return user_validation(data)
-
 
 class UserForMeSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
@@ -184,6 +153,3 @@ class UserForMeSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ("role",)
         model = User
-
-    def validate(self, data):
-        return user_validation(data)
