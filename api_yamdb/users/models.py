@@ -1,9 +1,10 @@
+import django.contrib.auth.models as django_auth_models
 from django.contrib.auth.models import AbstractUser, AnonymousUser
 from django.core import validators
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+
 from .validators import validate_username
-import django.contrib.auth.models as django_auth_models
 
 
 class User(AbstractUser):

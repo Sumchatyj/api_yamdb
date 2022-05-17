@@ -1,31 +1,22 @@
-from django_filters import rest_framework as filter
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, mixins, permissions, serializers, viewsets
-from rest_framework import status
+from django_filters import rest_framework as filter
+from rest_framework import (filters, mixins, permissions, serializers, status,
+                            viewsets)
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenViewBase
 
-from .filters import FilterTitle
 from reviews.models import Category, Genre, Review, Title
-from .permissions import (
-    IsAdminOrSuperuser,
-    IsAuthorOrStaffOrReadOnly,
-    IsAdminOrSuperuserOrReadOnly,
-)
-from .serializers import (
-    CategorySerializer,
-    CommentSerializer,
-    GenreSerializer,
-    ReviewSerializer,
-    SignUpSerializer,
-    TitleSerializer,
-    TokenSerializer,
-    UserForMeSerializer,
-    UserSerializer,
-)
 from users.models import User
+
+from .filters import FilterTitle
+from .permissions import (IsAdminOrSuperuser, IsAdminOrSuperuserOrReadOnly,
+                          IsAuthorOrStaffOrReadOnly)
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, ReviewSerializer, SignUpSerializer,
+                          TitleSerializer, TokenSerializer,
+                          UserForMeSerializer, UserSerializer)
 
 
 class CrLstDstViewSet(
@@ -38,7 +29,7 @@ class CrLstDstViewSet(
 
 
 class CategoryViewSet(CrLstDstViewSet):
-    queryset = Category.objects.all().order_by("id")
+    queryset = Category.objects.order_by("id")
     serializer_class = CategorySerializer
     lookup_field = "slug"
     permission_classes = [
@@ -49,7 +40,7 @@ class CategoryViewSet(CrLstDstViewSet):
 
 
 class GenreViewSet(CrLstDstViewSet):
-    queryset = Genre.objects.all().order_by("id")
+    queryset = Genre.objects.order_by("id")
     serializer_class = GenreSerializer
     lookup_field = "slug"
     permission_classes = [
@@ -60,7 +51,7 @@ class GenreViewSet(CrLstDstViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all().order_by("id")
+    queryset = Title.objects.order_by("id")
     serializer_class = TitleSerializer
     permission_classes = [
         IsAdminOrSuperuserOrReadOnly,

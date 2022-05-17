@@ -1,8 +1,10 @@
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
 from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
 
@@ -55,15 +57,10 @@ class TitleSerializer(serializers.ModelSerializer):
         return title
 
     def get_rating(self, obj):
-        reviews = obj.reviews.all()
-        count = reviews.count()
-        if count == 0:
-            return None
-        score_sum = 0
-        for i in reviews:
-            score_sum += i.score
-        rating = round(score_sum / count)
-        return rating
+        rating = obj.reviews.aggregate(Avg('score'))['score__avg']
+        if rating is None:
+            return rating
+        return round(rating)
 
 
 class ReviewSerializer(serializers.ModelSerializer):
