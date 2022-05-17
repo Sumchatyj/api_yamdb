@@ -6,14 +6,15 @@ from .views import (
     CommentsViewSet,
     GenreViewSet,
     ReviewsViewSet,
-    SignUpView,
+    SignUpViewSet,
     TitleViewSet,
     TokenView,
     UserViewset,
 )
 
 router_v1 = DefaultRouter()
-router_v1.register(r"users", UserViewset, "Users")
+router_v1.register(r"auth/signup", SignUpViewSet, "signup")
+router_v1.register(r"users", UserViewset, "users")
 router_v1.register(r"categories", CategoryViewSet, basename="categories")
 router_v1.register(r"genres", GenreViewSet, basename="genres")
 router_v1.register(r"titles", TitleViewSet, basename="titles")
@@ -27,7 +28,6 @@ router_v1.register(
 )
 
 urlpatterns = [
-    path("v1/auth/signup/", SignUpView.as_view()),
     path("v1/auth/token/", TokenView.as_view()),
     path("v1/", include(router_v1.urls)),
 ]
