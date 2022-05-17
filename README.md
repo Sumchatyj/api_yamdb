@@ -51,3 +51,44 @@ python3 manage.py migrate
 ```
 python3 manage.py runserver
 ```
+
+
+### Примеры:
+
+Регистрация новго пользователя.
+
+POST /api/v1/auth/signup/
+
+```
+{
+    "email": "string",
+    "username": "string"
+}
+```
+
+Получение JWT-токена.
+
+POST /api/v1/auth/token/
+
+```
+{
+    "username": "string",
+    "confirmation_code": "string"
+}
+```
+
+Получение информации о произведении.
+
+GET /api/v1/titles/{titles_id}/
+
+
+Частичное обновление отзыва по id. Обновить отзыв может только автор комментария, модератор или администратор. Анонимные запросы запрещены.
+
+PATCH /api/v1/titles/{title_id}/reviews/{review_id}/
+
+```
+{
+    "text": "string",
+    "score": 1
+}
+```
