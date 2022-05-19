@@ -22,36 +22,17 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    category = CategorySerializer(read_only=True)
-    genre = GenreSerializer(read_only=True, many=True)
+    category = serializers.SlugRelatedField(
+        slug_field="slug", queryset=Category.objects.all()
+    )
+    genre = serializers.SlugRelatedField(
+        slug_field="slug", queryset=Genre.objects.all(), many=True
+    )
     rating = serializers.SerializerMethodField(required=False)
 
     class Meta:
         fields = "__all__"
         model = Title
-
-    def create(self, validated_data):
-        slug_category = self.context["request"].data.get("category")
-        validated_data["category"] = Category.objects.get(slug=slug_category)
-        slugs_genre = self.context["request"].data.getlist("genre")
-        if len(slugs_genre) > 0:
-            genres = []
-            for slug in slugs_genre:
-                genre = Genre.objects.filter(slug=slug)
-                genres.append(genre[0])
-            validated_data["genre"] = genres
-        genres = validated_data.pop("genre")
-        title = Title.objects.create(**validated_data)
-        title.genre.set(genres)
-        return title
-
-    def update(self, instance, validated_data):
-        slug_category = self.context["request"].data.get("category")
-        validated_data["category"] = Category.objects.get(slug=slug_category)
-        instance.category = validated_data.get('category', instance.category)
-        instance.name = validated_data.get('name', instance.name)
-        instance.save()
-        return instance
 
     def validate_category(self, value):
         try:
@@ -68,8 +49,33 @@ class TitleSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("Такого жанра нет!")
         return values
 
+    def create(self, validated_data):
+        category = validated_data.pop("category")
+        genres = validated_data.pop("genre")
+        title = Title.objects.create(**validated_data)
+        title.category = category
+        title.genre.set(genres)
+        title.save()
+        return title
+
+    def to_representation(self, instance):
+        data = super(TitleSerializer, self).to_representation(instance)
+        category_slug = data.pop("category")
+        name_category = instance.category.name
+        category = {"category": {"name": name_category, "slug": category_slug}}
+        genre_data = data.pop("genre")
+        genre_list = []
+        genre_dict = {"genre": genre_list}
+        for genre in genre_data:
+            name = Genre.objects.get(slug=genre).name
+            genre_dict_one = {"name": name, "slug": genre}
+            genre_list.append(genre_dict_one)
+        data.update(category)
+        data.update(genre_dict)
+        return data
+
     def get_rating(self, obj):
-        rating = obj.reviews.aggregate(Avg('score'))['score__avg']
+        rating = obj.reviews.aggregate(Avg("score"))["score__avg"]
         if rating is None:
             return rating
         return round(rating)
