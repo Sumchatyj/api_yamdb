@@ -34,12 +34,11 @@ class TitleSerializer(serializers.ModelSerializer):
         slug_category = self.context["request"].data.get("category")
         validated_data["category"] = Category.objects.get(slug=slug_category)
         slugs_genre = self.context["request"].data.getlist("genre")
-        if len(slugs_genre) > 0:
-            genres = []
-            for slug in slugs_genre:
-                genre = Genre.objects.filter(slug=slug)
-                genres.append(genre[0])
-            validated_data["genre"] = genres
+        genres = []
+        for slug in slugs_genre:
+            genre = Genre.objects.filter(slug=slug)
+            genres.append(genre[0])
+        validated_data["genre"] = genres
         genres = validated_data.pop("genre")
         title = Title.objects.create(**validated_data)
         title.genre.set(genres)
@@ -55,18 +54,20 @@ class TitleSerializer(serializers.ModelSerializer):
 
     def validate_category(self, value):
         try:
-            Category.objects.get(slug=value)
+            value = Category.objects.get(slug=value)
         except Exception:
             raise serializers.ValidationError("Такой категории нет!")
         return value
 
     def validate_genre(self, values):
+        values_genre = []
         for value in values:
             try:
-                Genre.objects.filter(slug=value)
+                value_genre = Genre.objects.filter(slug=value)
+                values_genre.append(value_genre[0])
             except Exception:
                 raise serializers.ValidationError("Такого жанра нет!")
-        return values
+        return values_genre
 
     def get_rating(self, obj):
         rating = obj.reviews.aggregate(Avg('score'))['score__avg']
