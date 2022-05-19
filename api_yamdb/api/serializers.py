@@ -30,31 +30,43 @@ class TitleSerializer(serializers.ModelSerializer):
         fields = "__all__"
         model = Title
 
-    def validate(self, data):
-        slug = self.context["request"].data.get("category")
-        if slug is not None:
-            category = Category.objects.get(slug=slug)
-            if category:
-                data["category"] = category
-            else:
-                raise serializers.ValidationError("Такой категории нет!")
-        slugs = self.context["request"].data.getlist("genre")
-        if len(slugs) > 0:
-            genres = []
-            for slug in slugs:
-                genre = Genre.objects.filter(slug=slug)
-                if genre:
-                    genres.append(genre[0])
-                else:
-                    raise serializers.ValidationError("Такого жанра нет!")
-            data["genre"] = genres
-        return data
-
     def create(self, validated_data):
+        slug_category = self.context["request"].data.get("category")
+        validated_data["category"] = Category.objects.get(slug=slug_category)
+        slugs_genre = self.context["request"].data.getlist("genre")
+        if len(slugs_genre) > 0:
+            genres = []
+            for slug in slugs_genre:
+                genre = Genre.objects.filter(slug=slug)
+                genres.append(genre[0])
+            validated_data["genre"] = genres
         genres = validated_data.pop("genre")
         title = Title.objects.create(**validated_data)
         title.genre.set(genres)
         return title
+
+    def update(self, instance, validated_data):
+        slug_category = self.context["request"].data.get("category")
+        validated_data["category"] = Category.objects.get(slug=slug_category)
+        instance.category = validated_data.get('category', instance.category)
+        instance.name = validated_data.get('name', instance.name)
+        instance.save()
+        return instance
+
+    def validate_category(self, value):
+        try:
+            Category.objects.get(slug=value)
+        except Exception:
+            raise serializers.ValidationError("Такой категории нет!")
+        return value
+
+    def validate_genre(self, values):
+        for value in values:
+            try:
+                Genre.objects.filter(slug=value)
+            except Exception:
+                raise serializers.ValidationError("Такого жанра нет!")
+        return values
 
     def get_rating(self, obj):
         rating = obj.reviews.aggregate(Avg('score'))['score__avg']
