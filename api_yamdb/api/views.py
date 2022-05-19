@@ -1,8 +1,14 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filter
-from rest_framework import (filters, mixins, permissions, serializers, status,
-                            viewsets)
+from rest_framework import (
+    filters,
+    mixins,
+    permissions,
+    serializers,
+    status,
+    viewsets,
+)
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenViewBase
@@ -11,12 +17,22 @@ from reviews.models import Category, Genre, Review, Title
 from users.models import User
 
 from .filters import FilterTitle
-from .permissions import (IsAdminOrSuperuser, IsAdminOrSuperuserOrReadOnly,
-                          IsAuthorOrStaffOrReadOnly)
-from .serializers import (CategorySerializer, CommentSerializer,
-                          GenreSerializer, ReviewSerializer, SignUpSerializer,
-                          TitleSerializer, TokenSerializer,
-                          UserForMeSerializer, UserSerializer)
+from .permissions import (
+    IsAdminOrSuperuser,
+    IsAdminOrSuperuserOrReadOnly,
+    IsAuthorOrStaffOrReadOnly,
+)
+from .serializers import (
+    CategorySerializer,
+    CommentSerializer,
+    GenreSerializer,
+    ReviewSerializer,
+    SignUpSerializer,
+    TitleSerializer,
+    TokenSerializer,
+    UserForMeSerializer,
+    UserSerializer,
+)
 
 
 class CrLstDstViewSet(
