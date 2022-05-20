@@ -44,10 +44,10 @@ class TitleSerializer(serializers.ModelSerializer):
 
     def validate_genre(self, values):
         if len(values) > 0:
-            if Genre.objects.filter(slug__in=values):
-                return values
-            else:
+            if not Genre.objects.filter(slug__in=values):
                 raise serializers.ValidationError("Такого жанра нет!")
+            else:
+                return values
 
     def to_representation(self, instance):
         data = super(TitleSerializer, self).to_representation(instance)
