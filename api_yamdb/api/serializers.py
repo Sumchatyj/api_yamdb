@@ -97,14 +97,17 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class SignUpSerializer(serializers.Serializer):
-    username = serializers.CharField(required=True, validators=[UniqueValidator(queryset=User.objects.all())])
+    username = serializers.CharField(
+        required=True,
+        validators=[UniqueValidator(queryset=User.objects.all())],
+    )
     email = serializers.EmailField(
         required=True,
         validators=[UniqueValidator(queryset=User.objects.all())],
     )
 
     def validate(self, attrs):
-        if attrs.get('username') == 'me':
+        if attrs.get("username") == "me":
             raise ValidationError("неверный username!")
         return attrs
 
@@ -114,14 +117,16 @@ class TokenSerializer(serializers.Serializer):
     token_class = None
 
     default_error_messages = {
-        "no_active_account": _("No active account found with the given credentials")
+        "no_active_account": _(
+            "No active account found with the given credentials"
+        )
     }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields[self.username_field] = serializers.CharField()
         self.fields["confirmation_code"] = serializers.CharField()
-        
+
     def validate(self, attrs):
         user = get_object_or_404(User, username=attrs["username"])
         if user.confirmation_code == attrs["confirmation_code"]:
@@ -151,8 +156,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserForMeSerializer(UserSerializer):
-
     class Meta:
-        fields = ('__all__')
+        fields = "__all__"
         read_only_fields = ("role",)
         model = User

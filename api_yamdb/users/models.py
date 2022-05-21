@@ -51,16 +51,15 @@ class User(AbstractUser):
     )
 
     def is_admin(self):
-        if self.role == 'admin':
+        if self.role == "admin":
             return True
 
     def is_moderator(self):
-        if self.role == 'moderator':
+        if self.role == "moderator":
             return True
 
 
 class AnonymousUserExtraFields(AnonymousUser):
-
     def is_admin(self):
         return False
 
