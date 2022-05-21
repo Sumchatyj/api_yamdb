@@ -49,28 +49,23 @@ class User(AbstractUser):
         max_length=128,
         blank=True,
     )
-    is_moderator = models.BooleanField(
-        _("moderator status"),
-        default=False,
-        help_text=_("Designates whether the user have moderator status"),
-    )
-    is_admin = models.BooleanField(
-        _("staff status"),
-        default=False,
-        help_text=_("Designates whether the user have moderator admin"),
-    )
 
-    def save(self, *args, **kwargs):
-        if self.role == "moderator":
-            self.is_moderator = True
-        if self.role == "admin":
-            self.is_admin = True
-        super(User, self).save(*args, **kwargs)
+    def is_admin(self):
+        if self.role == 'admin':
+            return True
+
+    def is_moderator(self):
+        if self.role == 'moderator':
+            return True
 
 
 class AnonymousUserExtraFields(AnonymousUser):
-    is_moderator = False
-    is_admin = False
+
+    def is_admin(self):
+        return False
+
+    def is_moderator(self):
+        return False
 
 
 django_auth_models.AnonymousUser = AnonymousUserExtraFields

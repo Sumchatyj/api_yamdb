@@ -117,7 +117,7 @@ class SignUpViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        User.objects.get_or_create(**serializer.data)
         user = User.objects.get(
             username=serializer.initial_data.get("username")
         )
