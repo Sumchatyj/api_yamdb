@@ -35,28 +35,19 @@ class TitleSerializer(serializers.ModelSerializer):
         model = Title
 
     def validate_category(self, value):
-        try:
-            Category.objects.get(slug=value)
-        except Exception:
-            raise serializers.ValidationError("Такой категории нет!")
-        return value
+        if value is not None:
+            category = Category.objects.get(slug=value)
+            if category:
+                return value
+            else:
+                raise serializers.ValidationError("Такой категории нет!")
 
     def validate_genre(self, values):
-        for value in values:
-            try:
-                Genre.objects.filter(slug=value)
-            except Exception:
+        if len(values) > 0:
+            if not Genre.objects.filter(slug__in=values):
                 raise serializers.ValidationError("Такого жанра нет!")
-        return values
-
-    def create(self, validated_data):
-        category = validated_data.pop("category")
-        genres = validated_data.pop("genre")
-        title = Title.objects.create(**validated_data)
-        title.category = category
-        title.genre.set(genres)
-        title.save()
-        return title
+            else:
+                return values
 
     def to_representation(self, instance):
         data = super(TitleSerializer, self).to_representation(instance)
