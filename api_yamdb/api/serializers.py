@@ -3,7 +3,9 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.utils.translation import gettext_lazy as _
+
 
 from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
@@ -94,30 +96,41 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
 
 
-class SignUpSerializer(serializers.ModelSerializer):
+class SignUpSerializer(serializers.Serializer):
+    username = serializers.CharField(
+        required=True,
+        validators=[UniqueValidator(queryset=User.objects.all())],
+    )
     email = serializers.EmailField(
         required=True,
         validators=[UniqueValidator(queryset=User.objects.all())],
     )
 
-    class Meta:
-        fields = ("username", "email")
-        model = User
+    def validate(self, attrs):
+        if attrs.get("username") == "me":
+            raise ValidationError("неверный username!")
+        return attrs
 
 
-class TokenSerializer(TokenObtainPairSerializer):
+class TokenSerializer(serializers.Serializer):
     username_field = User.USERNAME_FIELD
+    token_class = None
+
+    default_error_messages = {
+        "no_active_account": _(
+            "No active account found with the given credentials"
+        )
+    }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields[self.username_field] = serializers.CharField()
         self.fields["confirmation_code"] = serializers.CharField()
-        self.fields.pop("password")
 
     def validate(self, attrs):
         user = get_object_or_404(User, username=attrs["username"])
         if user.confirmation_code == attrs["confirmation_code"]:
-            refresh = self.get_token(user)
+            refresh = RefreshToken.for_user(user)
             data = {"access": str(refresh.access_token)}
             return data
         else:
@@ -142,20 +155,8 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
 
 
-class UserForMeSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(
-        required=True,
-        validators=[UniqueValidator(queryset=User.objects.all())],
-    )
-
+class UserForMeSerializer(UserSerializer):
     class Meta:
-        fields = (
-            "username",
-            "email",
-            "first_name",
-            "last_name",
-            "bio",
-            "role",
-        )
+        fields = "__all__"
         read_only_fields = ("role",)
         model = User
